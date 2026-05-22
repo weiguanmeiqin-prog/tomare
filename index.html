@@ -1,0 +1,285 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>寄り道ボックス</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:'Courier New', monospace;
+    }
+
+    body{
+        width:100%;
+        height:100vh;
+        overflow:hidden;
+
+        background-image:url("background.jpg");
+        background-size:cover;
+        background-position:center;
+
+        display:flex;
+        justify-content:center;
+        align-items:center;
+
+        color:white;
+    }
+
+    .overlay{
+        position:absolute;
+        inset:0;
+        background:rgba(0,0,0,0.45);
+    }
+
+    .container{
+        position:relative;
+        z-index:10;
+
+        width:90%;
+        max-width:500px;
+
+        text-align:center;
+
+        backdrop-filter:blur(4px);
+
+        background:rgba(0,0,0,0.35);
+
+        border:1px solid rgba(255,255,255,0.15);
+
+        padding:40px 25px;
+
+        border-radius:20px;
+    }
+
+    h1{
+        font-size:42px;
+        margin-bottom:25px;
+        letter-spacing:4px;
+    }
+
+    #quest{
+        font-size:22px;
+        line-height:1.8;
+        min-height:100px;
+        margin-bottom:20px;
+    }
+
+    .small{
+        opacity:0.6;
+        font-size:12px;
+        margin-bottom:30px;
+    }
+
+    button{
+        background:rgba(255,255,255,0.08);
+        color:white;
+
+        border:1px solid rgba(255,255,255,0.3);
+
+        padding:14px 28px;
+
+        border-radius:12px;
+
+        cursor:pointer;
+
+        transition:0.3s;
+
+        margin:8px;
+    }
+
+    button:hover{
+        background:rgba(255,255,255,0.2);
+    }
+
+    #uploadArea,
+    #clearArea,
+    #cassetteArea{
+        display:none;
+    }
+
+    input{
+        margin-top:15px;
+        padding:10px;
+        width:80%;
+
+        border:none;
+        border-radius:10px;
+    }
+
+    .fade{
+        animation:fade 1s;
+    }
+
+    @keyframes fade{
+        from{
+            opacity:0;
+            transform:translateY(10px);
+        }
+
+        to{
+            opacity:1;
+            transform:translateY(0);
+        }
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="container fade">
+
+    <h1>寄り道ボックス</h1>
+
+    <div id="quest">
+        PRESS START
+    </div>
+
+    <div class="small">
+        この寄り道は、できれば拡散しないこと。
+    </div>
+
+    <button id="startBtn">
+        START
+    </button>
+
+    <div id="uploadArea">
+        <input type="file" id="photoInput" accept="image/*">
+    </div>
+
+    <div id="clearArea">
+        <button id="clearBtn">
+            クエスト解決
+        </button>
+    </div>
+
+    <div id="cassetteArea">
+
+        <p style="margin-bottom:10px;">
+            クエストカセット獲得
+        </p>
+
+        <input type="text" id="cassetteName" placeholder="カセットの名前">
+
+        <br>
+
+        <button id="saveBtn">
+            宝箱へしまう
+        </button>
+
+    </div>
+
+    <br>
+
+    <button onclick="location.href='kasetto.html'">
+        宝箱を開ける
+    </button>
+
+</div>
+
+<script>
+
+const quests = [
+
+"知らない飲み物を買う",
+"空を1分見る",
+"帰り道で一本違う道を通る",
+"駄菓子をひとつ買う",
+"音楽なしで歩く",
+"自販機をじっくり見る",
+"コンビニで普段買わないものを選ぶ",
+"夜風を感じながら歩く"
+
+];
+
+let selectedQuest = "";
+let uploadedImage = "";
+
+const startBtn = document.getElementById("startBtn");
+const uploadArea = document.getElementById("uploadArea");
+const clearArea = document.getElementById("clearArea");
+const cassetteArea = document.getElementById("cassetteArea");
+
+startBtn.addEventListener("click", ()=>{
+
+    selectedQuest = quests[Math.floor(Math.random() * quests.length)];
+
+    document.getElementById("quest").innerHTML =
+    "今日の寄り道<br><br>" + selectedQuest;
+
+    startBtn.style.display = "none";
+
+    uploadArea.style.display = "block";
+
+});
+
+document.getElementById("photoInput").addEventListener("change",(e)=>{
+
+    const file = e.target.files[0];
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+        uploadedImage = event.target.result;
+
+        clearArea.style.display = "block";
+
+    }
+
+    reader.readAsDataURL(file);
+
+});
+
+document.getElementById("clearBtn").addEventListener("click",()=>{
+
+    document.getElementById("quest").innerHTML =
+    "おかえりなさい。";
+
+    clearArea.style.display = "none";
+
+    cassetteArea.style.display = "block";
+
+});
+
+document.getElementById("saveBtn").addEventListener("click",()=>{
+
+    const cassetteName =
+    document.getElementById("cassetteName").value;
+
+    if(cassetteName === ""){
+
+        alert("カセットに名前をつけてください");
+        return;
+
+    }
+
+    let tapes =
+    JSON.parse(localStorage.getItem("tapes")) || [];
+
+    tapes.push({
+
+        name:cassetteName,
+        quest:selectedQuest,
+        image:uploadedImage
+
+    });
+
+    localStorage.setItem("tapes", JSON.stringify(tapes));
+
+    location.href = "kasetto.html";
+
+});
+
+</script>
+
+</body>
+</html>
